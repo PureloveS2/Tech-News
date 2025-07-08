@@ -7,7 +7,8 @@ const pool = mariadb.createPool({
     database: process.env.DB_DATABASE,
     connectionLimit: 5
 });
-
+ 
+// News route
 export async function getRecentNews() {
     let conn;
     try {
@@ -34,6 +35,27 @@ export async function postNoticeToDB(noticeTitle: string, noticeSubtitle: string
         conn = await pool.getConnection();
 
         const recentNews = await conn.query("INSERT INTO News (noticeTitle, noticeSubtitle, noticeBody, noticeImageUrl, categorie) VALUES (?, ?, ?, ?, ?)", [noticeTitle, noticeSubtitle, noticeBody, noticeImageUrl, categorie]);
+
+        return recentNews;
+ 
+    } catch(err) {
+        console.log("Database operation error:", err);
+        throw err;
+    } finally {
+        if (conn) {
+            conn.release();
+            console.log("Connection released to pool.");
+        }
+    }
+}
+
+// Login route
+export async function getUserPassword(username: string) {
+    let conn;
+    try {
+        conn = await pool.getConnection();
+
+        const recentNews = await conn.query("SELECT password FROM Users WHERE username = ?", [username]);
 
         return recentNews;
  

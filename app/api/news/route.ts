@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getRecentNews } from "./database";
-import { postNoticeToDB } from "./database";
+import { getRecentNews } from "../database";
+import { postNoticeToDB } from "../database";
 import { v4 as uuidv4 } from 'uuid'; //Library to generate uuid
 import fs from "fs"; 
 import { fileTypeFromBuffer } from "file-type"; // Library to check the mime type of a buffer
@@ -34,7 +34,11 @@ export const POST = async (req: NextRequest) => {
 
             postNoticeToDB(noticeTitle, noticeSubtitle, noticeBody, noticeImageUrl, categorie);
 
-            return NextResponse.json(await getRecentNews());
+            //return NextResponse.json(await getRecentNews());
+            return NextResponse.json(
+                {message: 'Created'},
+                {status: 201}
+            );
             
         }
         
