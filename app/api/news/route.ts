@@ -1,14 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getRecentNews } from "../database";
 import { postNoticeToDB } from "../database";
 import { v4 as uuidv4 } from 'uuid'; //Library to generate uuid
 import fs from "fs"; 
 import { fileTypeFromBuffer } from "file-type"; // Library to check the mime type of a buffer
-
-// Search the database for the 10 most recent news
-export const GET = async () => {
-    return NextResponse.json(await getRecentNews());
-};
 
 // Receives a multipartform with the information of a news and then sends it to the database
 export const POST = async (req: NextRequest) => {

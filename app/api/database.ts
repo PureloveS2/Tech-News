@@ -25,9 +25,29 @@ export async function getRecentNews() {
         if (conn) {
             conn.release();
             console.log("Connection released to pool.");
-        }
-    }
-}
+        };
+    };
+};
+
+export async function getAllNewsPaginatedBy10(rowsToSkip: number) {
+    let conn;
+    try {
+        conn = await pool.getConnection();
+
+        const recentNews = await conn.query("SELECT * FROM News ORDER BY id DESC LIMIT 10 OFFSET ?", [rowsToSkip]);
+
+        return recentNews;
+ 
+    } catch(err) {
+        console.log("Database operation error:", err);
+        throw err;
+    } finally {
+        if (conn) {
+            conn.release();
+            console.log("Connection released to pool.");
+        };
+    };
+};
 
 export async function postNoticeToDB(noticeTitle: string, noticeSubtitle: string, noticeBody: string, noticeImageUrl: string, categorie: string) {
     let conn;
