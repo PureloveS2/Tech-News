@@ -10,18 +10,20 @@ export const middleware = async (req: NextRequest) => {
     
     const token = cookieStore.get('userToken')?.value as string;
 
-    if (req.method === 'POST') {
-        const {payload} = await jwtVerify(token, JWT_PRIVATE_KEY);
-        if (payload.username === 'admin') {
-            return NextResponse.next();
-        }
-        return NextResponse.json(
+    if (req.method === 'POST' || req.method === 'PUT') {
+        try {
+            const {payload} = await jwtVerify(token, JWT_PRIVATE_KEY);
+            if (payload.username === 'admin') {
+                return NextResponse.next();
+            }
+        } catch {
+            return NextResponse.json(
             {message: 'Forbidden'},
-            {status: 403}
-        )
+            {status: 403})
+        };   
     };
 };
 
 export const config = {
-    matcher: '/api/news',
+    matcher: '/api/news/:path*',
 };

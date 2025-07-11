@@ -7,7 +7,7 @@ const pool = mariadb.createPool({
     database: process.env.DB_DATABASE,
     connectionLimit: 5
 });
- 
+
 // News route
 export async function getRecentNews() {
     let conn;
@@ -17,8 +17,8 @@ export async function getRecentNews() {
         const recentNews = await conn.query("SELECT * FROM News ORDER BY id DESC LIMIT 10");
 
         return recentNews;
- 
-    } catch(err) {
+
+    } catch (err) {
         console.log("Database operation error:", err);
         throw err;
     } finally {
@@ -37,8 +37,48 @@ export async function getAllNewsPaginatedBy10(rowsToSkip: number) {
         const recentNews = await conn.query("SELECT * FROM News ORDER BY id DESC LIMIT 10 OFFSET ?", [rowsToSkip]);
 
         return recentNews;
- 
-    } catch(err) {
+
+    } catch (err) {
+        console.log("Database operation error:", err);
+        throw err;
+    } finally {
+        if (conn) {
+            conn.release();
+            console.log("Connection released to pool.");
+        };
+    };
+};
+
+export async function getSpecificNotice(uuid: string) {
+    let conn;
+    try {
+        conn = await pool.getConnection();
+
+        const recentNews = await conn.query("SELECT * FROM News WHERE UID = ?", [uuid]);
+
+        return recentNews;
+
+    } catch (err) {
+        console.log("Database operation error:", err);
+        throw err;
+    } finally {
+        if (conn) {
+            conn.release();
+            console.log("Connection released to pool.");
+        };
+    };
+};
+
+export async function searchNotice(searchText: string) {
+    let conn;
+    try {
+        conn = await pool.getConnection();
+
+        //const recentNews = await conn.query("SELECT * FROM News ORDER BY id DESC LIMIT 10 OFFSET ?", [rowsToSkip]);
+        const foundSearch = await conn.query("SELECT * FROM News WHERE noticeTitle LIKE ?", [`%${searchText}%`]);
+        return foundSearch;
+
+    } catch (err) {
         console.log("Database operation error:", err);
         throw err;
     } finally {
@@ -57,17 +97,37 @@ export async function postNoticeToDB(noticeTitle: string, noticeSubtitle: string
         const recentNews = await conn.query("INSERT INTO News (noticeTitle, noticeSubtitle, noticeBody, noticeImageUrl, categorie) VALUES (?, ?, ?, ?, ?)", [noticeTitle, noticeSubtitle, noticeBody, noticeImageUrl, categorie]);
 
         return recentNews;
- 
-    } catch(err) {
+
+    } catch (err) {
         console.log("Database operation error:", err);
         throw err;
     } finally {
         if (conn) {
             conn.release();
             console.log("Connection released to pool.");
-        }
-    }
-}
+        };
+    };
+};
+
+export async function modifyNotice(noticeTitle: string, noticeSubtitle: string, noticeBody: string, noticeImageUrl: string, categorie: string, uuid: string,) {
+    let conn;
+    try {
+        conn = await pool.getConnection();
+
+        const recentNews = await conn.query("UPDATE News SET noticeTitle = ?, noticeSubtitle = ?, noticeBody = ?, noticeImageUrl = ?, categorie = ? WHERE UID = ?", [noticeTitle, noticeSubtitle, noticeBody, noticeImageUrl, categorie, uuid]);
+
+        return recentNews;
+
+    } catch (err) {
+        console.log("Database operation error:", err);
+        throw err;
+    } finally {
+        if (conn) {
+            conn.release();
+            console.log("Connection released to pool.");
+        };
+    };
+};
 
 // Login route
 export async function getUserPassword(username: string) {
@@ -78,8 +138,8 @@ export async function getUserPassword(username: string) {
         const recentNews = await conn.query("SELECT password FROM Users WHERE username = ?", [username]);
 
         return recentNews;
- 
-    } catch(err) {
+
+    } catch (err) {
         console.log("Database operation error:", err);
         throw err;
     } finally {
